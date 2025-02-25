@@ -4,7 +4,7 @@ This repository contains a GitHub Actions workflow to check daily commits and se
 
 ## How to Use
 
-1. Add the necessary secrets to your GitHub repository.
+1. Add the necessary secrets to  GitHub repository.
 2. The workflow will automatically run daily and send reminders if you haven't committed for the day.
 
 ## Update to Trigger Workflow
