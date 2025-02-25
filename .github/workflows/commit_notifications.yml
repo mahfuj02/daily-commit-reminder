@@ -1,0 +1,101 @@
+name: Commit Notifications
+
+on:
+  push:
+    branches:
+      - main  # Also trigger on push to main branch
+  schedule:
+    - cron: '0 12 * * *'  # Runs every day at 12:00 PM UTC
+    - cron: '0 22 * * *'  # Runs every day at 10:00 PM UTC
+
+jobs:
+  first-commit-notification:
+    if: github.event.commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Send first commit notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "🎉 Congrats on the first commit! Let's crush it today! 💪💻"
+
+  total-commits-count:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Get total commits
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          python -c "
+import requests
+from datetime import datetime
+import os
+
+USERNAME = 'mahfuj02'
+REPO = 'daily-commit-reminder'
+TOKEN = os.getenv('PERSONAL_ACCESS_TOKEN')
+
+def get_commits_count():
+    url = f'https://api.github.com/repos/{USERNAME}/{REPO}/commits'
+    headers = {'Authorization': f'token {TOKEN}'}
+    response = requests.get(url, headers=headers)
+    return len(response.json())
+
+total_commits = get_commits_count()
+print(f'Total commits so far: {total_commits}')
+"
+
+      - name: Send total commits count
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "Total commits made so far today: ${{ steps.get_total_commits.outputs.total_commits }}"
+
+  commit-reminder:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run commit check script
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: python check_commits.py
+
+      - name: Send reminder
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "You haven't committed today. Please commit something!"
