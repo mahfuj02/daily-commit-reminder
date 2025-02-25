@@ -24,7 +24,7 @@ jobs:
 
       - name: Run commit check script
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: python check_commits.py
 
       - name: Send reminder
