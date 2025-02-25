@@ -3,6 +3,9 @@ name: Daily Commit Check
 on:
   schedule:
     - cron: '0 0 * * *'  # Runs every day at midnight UTC
+  push:
+    branches:
+      - main  # Also trigger on push to main branch
 
 jobs:
   check-commits:
