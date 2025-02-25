@@ -5,7 +5,7 @@ import os
 # Replace with your GitHub username and repository
 USERNAME = 'mahfuj02'
 REPO = 'daily-commit-reminder'
-TOKEN = os.getenv('GITHUB_TOKEN')  # Get the token from environment variable
+TOKEN = os.getenv('PERSONAL_ACCESS_TOKEN')  # Get the token from environment variable
 
 def get_commits():
     url = f'https://api.github.com/repos/{USERNAME}/{REPO}/commits'
